@@ -1,5 +1,7 @@
 # Digital Modulation Simulator
 
+[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://ktauchathuranga.github.io/mod-sim/)
+
 A web-based scientific dashboard for simulating and visualizing digital and analog modulation techniques. This application mimics the behavior of a MATLAB GUI, providing real-time signal processing visualization through a browser.
 
 ## Features
