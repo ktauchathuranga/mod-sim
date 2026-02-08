@@ -16,7 +16,11 @@ const UI = {
     freq2: document.getElementById('freq2'),
     digitalData: document.getElementById('digitalData'),
     status: document.getElementById('status'),
-    buttons: document.querySelectorAll('.run-btn')
+    buttons: document.querySelectorAll('.run-btn'),
+    amp1Label: document.getElementById('amp1-label'),
+    freq1Label: document.getElementById('freq1-label'),
+    amp2Label: document.getElementById('amp2-label'),
+    freq2Label: document.getElementById('freq2-label')
 };
 
 // State to hold current data
@@ -38,6 +42,7 @@ function init() {
     [UI.amp1, UI.amp2, UI.freq1, UI.freq2, UI.digitalData].forEach(input => {
         input.addEventListener('input', runSimulation);
     });
+
     // Initial run
     runSimulation();
 }
@@ -46,6 +51,20 @@ function updateUIActiveButton(activeBtn) {
     UI.buttons.forEach(btn => btn.classList.remove('active'));
     activeBtn.classList.add('active');
     UI.status.innerText = `Running ${currentModulation}...`;
+
+    // Dynamic Labels
+    const isAnalog = ['AM', 'FM', 'PM'].includes(currentModulation);
+    if (isAnalog) {
+        UI.amp1Label.innerText = "Carrier Amplitude (Ac)";
+        UI.freq1Label.innerText = "Carrier Frequency (fc)";
+        UI.amp2Label.innerText = "Message Amplitude (Am)";
+        UI.freq2Label.innerText = "Message Frequency (fm)";
+    } else {
+        UI.amp1Label.innerText = "Amplitude Carrier 1";
+        UI.freq1Label.innerText = "Frequency Carrier 1 (Hz)";
+        UI.amp2Label.innerText = "Amplitude Carrier 2";
+        UI.freq2Label.innerText = "Frequency Carrier 2 (Hz)";
+    }
 }
 
 /**
@@ -70,7 +89,11 @@ function runSimulation() {
         t.push(i / fs);
     }
 
-    const digitalWave = generateDigitalWave(dataString, t, Tb);
+    const isAnalog = ['AM', 'FM', 'PM'].includes(currentModulation);
+    const digitalWave = isAnalog
+        ? t.map(time => A2 * Math.sin(2 * Math.PI * F2 * time))
+        : generateDigitalWave(dataString, t, Tb);
+
     const carrierWave = generateCarrierWave(A1, F1, t);
     const modulatedWave = generateModulatedWave(currentModulation, dataString, t, Tb, A1, A2, F1, F2);
 
@@ -158,6 +181,22 @@ function generateModulatedWave(type, bits, t, Tb, A1, A2, F1, F2) {
 
                 return amI * Math.cos(2 * Math.PI * F1 * time) - amQ * Math.sin(2 * Math.PI * F1 * time);
 
+            case 'AM':
+                // Amplitude Modulation: s(t) = [Ac + Am*sin(2*pi*fm*t)] * sin(2*pi*fc*t)
+                const messageAM = A2 * Math.sin(2 * Math.PI * F2 * time);
+                return (A1 + messageAM) * Math.sin(2 * Math.PI * F1 * time);
+
+            case 'FM':
+                // Frequency Modulation: s(t) = Ac * sin(2*pi*fc*t + beta * sin(2*pi*fm*t))
+                const beta = 5;
+                return A1 * Math.sin(2 * Math.PI * F1 * time + beta * Math.sin(2 * Math.PI * F2 * time));
+
+            case 'PM':
+                // Phase Modulation: s(t) = Ac * sin(2*pi*fc*t + kp * message(t))
+                const kp = Math.PI;
+                const messagePM = A2 * Math.sin(2 * Math.PI * F2 * time);
+                return A1 * Math.sin(2 * Math.PI * F1 * time + kp * messagePM);
+
             default:
                 return 0;
         }
@@ -176,9 +215,13 @@ function plotAll(t, digital, carrier, modulated) {
         yaxis: { gridcolor: '#eee', zerolinecolor: '#ccc' }
     };
 
+    const isAnalog = ['AM', 'FM', 'PM'].includes(currentModulation);
+    const digitalLabel = isAnalog ? 'Message Signal (Carrier 2)' : 'Digital Data Sequence';
+    const digitalLine = isAnalog ? { color: '#28a745', width: 2 } : { shape: 'hv', color: '#28a745', width: 3 };
+
     Plotly.react('plot-digital', [{
-        x: t, y: digital, mode: 'lines', line: { shape: 'hv', color: '#28a745', width: 3 }
-    }], { ...commonLayout, title: 'Digital Data Sequence' });
+        x: t, y: digital, mode: 'lines', line: digitalLine
+    }], { ...commonLayout, title: digitalLabel });
 
     Plotly.react('plot-carrier', [{
         x: t, y: carrier, mode: 'lines', line: { color: '#007bff', width: 1.5 }
