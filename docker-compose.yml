@@ -1,0 +1,6 @@
+services:
+  mod-sim:
+    build: .
+    ports:
+      - "8081:80"
+    restart: always

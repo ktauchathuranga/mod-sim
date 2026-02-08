@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Modulation Simulator | Lab Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Plotly.js CDN -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            <header class="sidebar-header">
+                <h1>Modulation Lab</h1>
+                <p>Digital Signal Simulator</p>
+            </header>
+
+            <section class="control-section">
+                <h3>Input Signal</h3>
+                <div class="input-group">
+                    <label for="amp1">Amplitude Carrier 1</label>
+                    <input type="number" id="amp1" value="1" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="amp2">Amplitude Carrier 2</label>
+                    <input type="number" id="amp2" value="1" step="0.1">
+                </div>
+                <div class="input-group">
+                    <label for="freq1">Frequency Carrier 1 (Hz)</label>
+                    <input type="number" id="freq1" value="10">
+                </div>
+                <div class="input-group">
+                    <label for="freq2">Frequency Carrier 2 (Hz)</label>
+                    <input type="number" id="freq2" value="20">
+                </div>
+                <div class="input-group">
+                    <label for="digitalData">Digital Data (Bits)</label>
+                    <input type="text" id="digitalData" value="10110" placeholder="e.g. 10110">
+                </div>
+            </section>
+
+            <section class="control-section">
+                <h3>Run Modulation</h3>
+                <div class="button-grid">
+                    <button class="run-btn" data-type="ASK">ASK</button>
+                    <button class="run-btn" data-type="FSK">FSK</button>
+                    <button class="run-btn" data-type="BPSK">BPSK</button>
+                    <button class="run-btn" data-type="DPSK">DPSK</button>
+                    <button class="run-btn" data-type="QPSK">QPSK</button>
+                    <button class="run-btn" data-type="QAM">QAM</button>
+                </div>
+            </section>
+
+            <footer class="sidebar-footer">
+                <p>Status: <span id="status">Ready</span></p>
+            </footer>
+        </aside>
+
+        <!-- Main Visualization Area -->
+        <main class="main-panel">
+            <div id="plot-digital" class="plot-container"></div>
+            <div id="plot-carrier" class="plot-container"></div>
+            <div id="plot-modulated" class="plot-container"></div>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
